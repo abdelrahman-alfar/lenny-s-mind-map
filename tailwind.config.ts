@@ -62,13 +62,12 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         // Knowledge map category colors
-        "core-pm": "hsl(var(--core-pm))",
+        "strategy": "hsl(var(--strategy))",
         "growth": "hsl(var(--growth))",
         "leadership": "hsl(var(--leadership))",
-        "companies": "hsl(var(--companies))",
+        "execution": "hsl(var(--execution))",
         "skills": "hsl(var(--skills))",
         "career": "hsl(var(--career))",
-        "technology": "hsl(var(--technology))",
       },
       borderRadius: {
         lg: "var(--radius)",

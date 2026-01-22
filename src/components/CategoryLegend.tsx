@@ -7,13 +7,12 @@ interface CategoryLegendProps {
 }
 
 const categories: { key: TopicCategory; colorClass: string }[] = [
-  { key: 'core-pm', colorClass: 'bg-core-pm' },
+  { key: 'strategy', colorClass: 'bg-strategy' },
   { key: 'growth', colorClass: 'bg-growth' },
   { key: 'leadership', colorClass: 'bg-leadership' },
-  { key: 'companies', colorClass: 'bg-companies' },
+  { key: 'execution', colorClass: 'bg-execution' },
   { key: 'skills', colorClass: 'bg-skills' },
   { key: 'career', colorClass: 'bg-career' },
-  { key: 'technology', colorClass: 'bg-technology' },
 ];
 
 export function CategoryLegend({ activeCategory, onCategoryClick }: CategoryLegendProps) {
