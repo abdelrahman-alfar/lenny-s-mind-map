@@ -5,14 +5,22 @@ import { cn } from "@/lib/utils";
 interface TopicNodeProps {
   topic: Topic;
   onClick: (topic: Topic) => void;
+  onDoubleClick?: (topic: Topic) => void;
   onHover?: (topicId: string | null) => void;
   isSelected: boolean;
   isHighlighted?: boolean;
   isDimmed?: boolean;
   delay?: number;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'center';
 }
 
-const sizeClasses = (count: number) => {
+const sizeClasses = (count: number, customSize?: string) => {
+  if (customSize === 'center') return "w-36 h-36 text-lg";
+  if (customSize === 'xl') return "w-28 h-28 text-base";
+  if (customSize === 'lg') return "w-24 h-24 text-sm";
+  if (customSize === 'md') return "w-20 h-20 text-sm";
+  if (customSize === 'sm') return "w-16 h-16 text-xs";
+  
   if (count >= 100) return "w-28 h-28 text-base";
   if (count >= 40) return "w-24 h-24 text-sm";
   if (count >= 20) return "w-20 h-20 text-sm";
@@ -20,7 +28,7 @@ const sizeClasses = (count: number) => {
   return "w-14 h-14 text-xs";
 };
 
-const getCategoryColor = (category: string, isHighlighted?: boolean) => {
+const getCategoryColor = (category: string) => {
   const colors: Record<string, string> = {
     'core-pm': 'bg-core-pm/20 border-core-pm hover:bg-core-pm/30',
     'growth': 'bg-growth/20 border-growth hover:bg-growth/30',
@@ -35,13 +43,13 @@ const getCategoryColor = (category: string, isHighlighted?: boolean) => {
 
 const getGlowColor = (category: string) => {
   const glows: Record<string, string> = {
-    'core-pm': 'shadow-[0_0_25px_hsl(217,91%,60%,0.5)]',
-    'growth': 'shadow-[0_0_25px_hsl(142,71%,45%,0.5)]',
-    'leadership': 'shadow-[0_0_25px_hsl(280,65%,60%,0.5)]',
-    'companies': 'shadow-[0_0_25px_hsl(38,92%,50%,0.5)]',
-    'skills': 'shadow-[0_0_25px_hsl(173,80%,40%,0.5)]',
-    'career': 'shadow-[0_0_25px_hsl(340,75%,55%,0.5)]',
-    'technology': 'shadow-[0_0_25px_hsl(200,95%,50%,0.5)]',
+    'core-pm': 'shadow-[0_0_30px_hsl(217,91%,60%,0.5)]',
+    'growth': 'shadow-[0_0_30px_hsl(142,71%,45%,0.5)]',
+    'leadership': 'shadow-[0_0_30px_hsl(280,65%,60%,0.5)]',
+    'companies': 'shadow-[0_0_30px_hsl(38,92%,50%,0.5)]',
+    'skills': 'shadow-[0_0_30px_hsl(173,80%,40%,0.5)]',
+    'career': 'shadow-[0_0_30px_hsl(340,75%,55%,0.5)]',
+    'technology': 'shadow-[0_0_30px_hsl(200,95%,50%,0.5)]',
   };
   return glows[category] || '';
 };
@@ -49,11 +57,13 @@ const getGlowColor = (category: string) => {
 export function TopicNode({ 
   topic, 
   onClick, 
+  onDoubleClick,
   onHover,
   isSelected, 
   isHighlighted,
   isDimmed,
-  delay = 0 
+  delay = 0,
+  size
 }: TopicNodeProps) {
   return (
     <motion.button
@@ -75,11 +85,12 @@ export function TopicNode({
       whileHover={{ scale: 1.15, zIndex: 50 }}
       whileTap={{ scale: 0.95 }}
       onClick={() => onClick(topic)}
+      onDoubleClick={() => onDoubleClick?.(topic)}
       onMouseEnter={() => onHover?.(topic.id)}
       onMouseLeave={() => onHover?.(null)}
       className={cn(
         "relative rounded-full border-2 flex flex-col items-center justify-center p-2 cursor-pointer transition-all duration-200",
-        sizeClasses(topic.episodeCount),
+        sizeClasses(topic.episodeCount, size),
         getCategoryColor(topic.category),
         (isSelected || isHighlighted) && getGlowColor(topic.category),
         isSelected && "ring-2 ring-offset-2 ring-offset-background ring-accent"

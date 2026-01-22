@@ -1,11 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Podcast, BookOpen } from "lucide-react";
+import { X, ExternalLink, Podcast, BookOpen, ZoomIn } from "lucide-react";
 import { Topic, categoryLabels } from "@/data/knowledgeMap";
 import { Button } from "@/components/ui/button";
 
 interface TopicDetailProps {
   topic: Topic | null;
   onClose: () => void;
+  onZoomIn?: (topic: Topic) => void;
 }
 
 const getCategoryBadgeClass = (category: string) => {
@@ -21,7 +22,7 @@ const getCategoryBadgeClass = (category: string) => {
   return classes[category] || 'bg-primary/20 text-primary';
 };
 
-export function TopicDetail({ topic, onClose }: TopicDetailProps) {
+export function TopicDetail({ topic, onClose, onZoomIn }: TopicDetailProps) {
   const githubUrl = `https://github.com/ChatPRD/lennys-podcast-transcripts/blob/main/index/${topic?.id}.md`;
 
   return (
@@ -64,8 +65,19 @@ export function TopicDetail({ topic, onClose }: TopicDetailProps) {
           </div>
 
           <div className="space-y-3">
+            {onZoomIn && (
+              <Button
+                variant="default"
+                className="w-full gap-2 bg-accent hover:bg-accent/90 text-accent-foreground"
+                onClick={() => onZoomIn(topic)}
+              >
+                <ZoomIn className="w-4 h-4" />
+                Zoom In & Explore
+              </Button>
+            )}
+            
             <Button
-              variant="default"
+              variant="outline"
               className="w-full gap-2"
               onClick={() => window.open(githubUrl, '_blank')}
             >
@@ -75,8 +87,8 @@ export function TopicDetail({ topic, onClose }: TopicDetailProps) {
             </Button>
             
             <Button
-              variant="outline"
-              className="w-full gap-2"
+              variant="ghost"
+              className="w-full gap-2 text-muted-foreground"
               onClick={() => window.open('https://www.lennyspodcast.com/', '_blank')}
             >
               <Podcast className="w-4 h-4" />
