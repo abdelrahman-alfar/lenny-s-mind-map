@@ -119,13 +119,22 @@ export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown
               {showDeepDive ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
             </button>
             {showDeepDive && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-4 space-y-3">
-                {topic.deepDive.map((point, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="flex gap-3 text-muted-foreground">
-                    <span className="text-primary">•</span>
-                    <span>{point}</span>
-                  </motion.div>
-                ))}
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-4 space-y-4">
+                {topic.deepDive.map((point, i) => {
+                  const hasBoldHeader = point.startsWith('**');
+                  const parts = hasBoldHeader ? point.split('**') : [point];
+                  const header = hasBoldHeader ? parts[1] : null;
+                  const content = hasBoldHeader ? parts.slice(2).join('').replace(/^:\s*/, '') : point;
+                  
+                  return (
+                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="glass-panel rounded-lg p-4">
+                      {header && (
+                        <h4 className="font-semibold text-foreground mb-2">{header}</h4>
+                      )}
+                      <p className="text-muted-foreground text-sm leading-relaxed">{content}</p>
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             )}
           </motion.section>
