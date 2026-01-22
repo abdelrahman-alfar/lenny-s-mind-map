@@ -1,12 +1,13 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Sparkles, Network, Grid3X3 } from "lucide-react";
-import { topics, Topic, TopicCategory, getTotalEpisodes, connections } from "@/data/knowledgeMap";
+import { Brain, Sparkles, Network, ChevronRight, Home, ZoomIn } from "lucide-react";
+import { topics, Topic, TopicCategory, getTotalEpisodes, connections, categoryLabels } from "@/data/knowledgeMap";
 import { TopicNode } from "./TopicNode";
 import { TopicDetail } from "./TopicDetail";
 import { CategoryLegend } from "./CategoryLegend";
 import { SearchBar } from "./SearchBar";
 import { Button } from "./ui/button";
+import { FocusedView } from "./FocusedView";
 
 interface NodePosition {
   id: string;
@@ -21,6 +22,8 @@ export function KnowledgeMap() {
   const [hoveredTopic, setHoveredTopic] = useState<string | null>(null);
   const [showConnections, setShowConnections] = useState(true);
   const [nodePositions, setNodePositions] = useState<NodePosition[]>([]);
+  const [focusedTopic, setFocusedTopic] = useState<Topic | null>(null);
+  const [navigationPath, setNavigationPath] = useState<Topic[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const filteredTopics = useMemo(() => {
@@ -66,7 +69,6 @@ export function KnowledgeMap() {
       setNodePositions(positions);
     };
 
-    // Update positions after animations complete
     const timer = setTimeout(updatePositions, 500);
     window.addEventListener('resize', updatePositions);
     
@@ -96,13 +98,45 @@ export function KnowledgeMap() {
     setSelectedTopic(topic === selectedTopic ? null : topic);
   };
 
+  const handleZoomIn = (topic: Topic) => {
+    setNavigationPath(prev => [...prev, topic]);
+    setFocusedTopic(topic);
+    setSelectedTopic(null);
+  };
+
+  const handleNavigateBack = (index: number) => {
+    if (index === -1) {
+      setFocusedTopic(null);
+      setNavigationPath([]);
+    } else {
+      const newPath = navigationPath.slice(0, index + 1);
+      setNavigationPath(newPath);
+      setFocusedTopic(newPath[newPath.length - 1]);
+    }
+  };
+
+  const handleDrillDown = (topic: Topic) => {
+    setNavigationPath(prev => [...prev, topic]);
+    setFocusedTopic(topic);
+  };
+
+  // Focused view mode
+  if (focusedTopic) {
+    return (
+      <FocusedView
+        topic={focusedTopic}
+        navigationPath={navigationPath}
+        onNavigateBack={handleNavigateBack}
+        onDrillDown={handleDrillDown}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Background effects */}
       <div className="fixed inset-0 constellation-bg opacity-40 pointer-events-none" />
       <div className="fixed inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80 pointer-events-none" />
-      
-      {/* Central glow effect */}
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10">
@@ -163,8 +197,8 @@ export function KnowledgeMap() {
                   Explore Product Wisdom
                 </h2>
                 <p className="text-muted-foreground max-w-xl mx-auto">
-                  Navigate through {filteredTopics.length} topics extracted from the best product management podcast. 
-                  {showConnections && " Hover to see connections."}
+                  Navigate through {filteredTopics.length} topics. 
+                  <span className="text-primary"> Double-click to zoom in</span> and explore connections.
                 </p>
               </motion.div>
 
@@ -206,12 +240,10 @@ export function KnowledgeMap() {
                       const highlighted = isConnectionHighlighted(connection.from, connection.to);
                       const dimmed = hoveredTopic && !highlighted;
                       
-                      // Calculate control point for curved line
                       const midX = (fromPos.x + toPos.x) / 2;
                       const midY = (fromPos.y + toPos.y) / 2;
                       const dx = toPos.x - fromPos.x;
                       const dy = toPos.y - fromPos.y;
-                      const offset = Math.min(Math.abs(dx), Math.abs(dy)) * 0.3;
                       const controlX = midX - dy * 0.2;
                       const controlY = midY + dx * 0.2;
                       
@@ -234,7 +266,6 @@ export function KnowledgeMap() {
                           strokeWidth={highlighted ? connection.strength + 1 : connection.strength}
                           fill="none"
                           strokeLinecap="round"
-                          className="transition-all duration-200"
                         />
                       );
                     })}
@@ -268,6 +299,7 @@ export function KnowledgeMap() {
                         key={topic.id}
                         topic={topic}
                         onClick={handleTopicClick}
+                        onDoubleClick={handleZoomIn}
                         onHover={setHoveredTopic}
                         isSelected={selectedTopic?.id === topic.id}
                         isHighlighted={
@@ -292,11 +324,15 @@ export function KnowledgeMap() {
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="mt-4 text-center text-sm text-muted-foreground"
+                  className="mt-4 flex flex-col items-center gap-2 text-sm text-muted-foreground"
                 >
                   <span className="inline-flex items-center gap-2">
                     <span className="w-8 h-0.5 bg-gradient-to-r from-primary/30 via-primary to-primary/30 rounded" />
-                    Hover on topics to reveal {visibleConnections.length} connections
+                    {visibleConnections.length} connections
+                  </span>
+                  <span className="inline-flex items-center gap-2 text-xs">
+                    <ZoomIn className="w-3 h-3" />
+                    Double-click any topic to zoom in
                   </span>
                 </motion.div>
               )}
@@ -304,7 +340,11 @@ export function KnowledgeMap() {
 
             {/* Detail panel */}
             <div className="lg:w-80 lg:sticky lg:top-24 lg:self-start">
-              <TopicDetail topic={selectedTopic} onClose={() => setSelectedTopic(null)} />
+              <TopicDetail 
+                topic={selectedTopic} 
+                onClose={() => setSelectedTopic(null)}
+                onZoomIn={handleZoomIn}
+              />
               
               {!selectedTopic && (
                 <motion.div 
@@ -320,7 +360,7 @@ export function KnowledgeMap() {
                     Select a Topic
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Click on any node to explore episodes and learn more about that topic.
+                    Click to view details, or double-click to zoom in and explore connections.
                   </p>
                 </motion.div>
               )}
