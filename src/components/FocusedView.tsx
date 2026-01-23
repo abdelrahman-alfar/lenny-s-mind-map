@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Home, ChevronRight, ZoomOut, ChevronDown, ChevronUp, Lightbulb, BookOpen, Layers, ArrowRight } from "lucide-react";
 import { Topic, SubTopic, topics, connections, categoryLabels } from "@/data/knowledgeMap";
@@ -17,6 +17,8 @@ interface FocusedViewProps {
   navigationPath: Topic[];
   onNavigateBack: (index: number) => void;
   onDrillDown: (topic: Topic) => void;
+  initialSubTopicPath?: SubTopic[];
+  onSubTopicPathConsumed?: () => void;
 }
 
 const getCategoryColor = (category: string) => {
@@ -43,9 +45,17 @@ const getCategoryBadgeClass = (category: string) => {
   return classes[category] || 'bg-primary/20 text-primary';
 };
 
-export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown }: FocusedViewProps) {
+export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown, initialSubTopicPath, onSubTopicPathConsumed }: FocusedViewProps) {
   const [showDeepDive, setShowDeepDive] = useState(false);
   const [subTopicPath, setSubTopicPath] = useState<SubTopic[]>([]);
+
+  // Initialize with search result path if provided
+  useEffect(() => {
+    if (initialSubTopicPath && initialSubTopicPath.length > 0) {
+      setSubTopicPath(initialSubTopicPath);
+      onSubTopicPathConsumed?.();
+    }
+  }, [initialSubTopicPath, onSubTopicPathConsumed]);
 
   // Current content being viewed (either the topic or a sub-topic)
   const currentContent: ViewableContent = subTopicPath.length > 0 

@@ -1,11 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Brain, Sparkles, Network, ChevronRight, Home, ZoomIn } from "lucide-react";
-import { topics, Topic, TopicCategory, getTotalEpisodes, connections, categoryLabels } from "@/data/knowledgeMap";
+import { topics, Topic, SubTopic, TopicCategory, getTotalEpisodes, connections, categoryLabels } from "@/data/knowledgeMap";
 import { TopicNode } from "./TopicNode";
 import { TopicDetail } from "./TopicDetail";
 import { CategoryLegend } from "./CategoryLegend";
-import { SearchBar } from "./SearchBar";
+import { ContentSearchBar } from "./ContentSearchBar";
 import { Button } from "./ui/button";
 import { FocusedView } from "./FocusedView";
 
@@ -24,6 +24,7 @@ export function KnowledgeMap() {
   const [nodePositions, setNodePositions] = useState<NodePosition[]>([]);
   const [focusedTopic, setFocusedTopic] = useState<Topic | null>(null);
   const [navigationPath, setNavigationPath] = useState<Topic[]>([]);
+  const [initialSubTopicPath, setInitialSubTopicPath] = useState<SubTopic[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const filteredTopics = useMemo(() => {
@@ -120,6 +121,16 @@ export function KnowledgeMap() {
     setFocusedTopic(topic);
   };
 
+  const handleSearchResultClick = (topicId: string, subTopicPath: SubTopic[]) => {
+    const topic = topics.find(t => t.id === topicId);
+    if (topic) {
+      setNavigationPath([topic]);
+      setFocusedTopic(topic);
+      setInitialSubTopicPath(subTopicPath);
+      setSelectedTopic(null);
+    }
+  };
+
   // Focused view mode
   if (focusedTopic) {
     return (
@@ -128,6 +139,8 @@ export function KnowledgeMap() {
         navigationPath={navigationPath}
         onNavigateBack={handleNavigateBack}
         onDrillDown={handleDrillDown}
+        initialSubTopicPath={initialSubTopicPath}
+        onSubTopicPathConsumed={() => setInitialSubTopicPath([])}
       />
     );
   }
@@ -163,7 +176,7 @@ export function KnowledgeMap() {
               </motion.div>
               
               <div className="flex items-center gap-3">
-                <SearchBar value={searchQuery} onChange={setSearchQuery} />
+                <ContentSearchBar onResultClick={handleSearchResultClick} />
                 <Button
                   variant={showConnections ? "default" : "outline"}
                   size="sm"
