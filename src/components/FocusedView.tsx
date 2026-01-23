@@ -1,8 +1,16 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Home, ChevronRight, ZoomOut, ChevronDown, ChevronUp, Lightbulb, BookOpen } from "lucide-react";
-import { Topic, topics, connections, categoryLabels } from "@/data/knowledgeMap";
+import { Home, ChevronRight, ZoomOut, ChevronDown, ChevronUp, Lightbulb, BookOpen, Layers, ArrowRight } from "lucide-react";
+import { Topic, SubTopic, topics, connections, categoryLabels } from "@/data/knowledgeMap";
 import { Button } from "./ui/button";
+
+type ViewableContent = Topic | SubTopic;
+
+interface NavigationItem {
+  id: string;
+  name: string;
+  type: 'topic' | 'subtopic';
+}
 
 interface FocusedViewProps {
   topic: Topic;
@@ -37,8 +45,18 @@ const getCategoryBadgeClass = (category: string) => {
 
 export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown }: FocusedViewProps) {
   const [showDeepDive, setShowDeepDive] = useState(false);
+  const [subTopicPath, setSubTopicPath] = useState<SubTopic[]>([]);
+
+  // Current content being viewed (either the topic or a sub-topic)
+  const currentContent: ViewableContent = subTopicPath.length > 0 
+    ? subTopicPath[subTopicPath.length - 1] 
+    : topic;
+
+  const currentSubTopics = currentContent.subTopics || [];
 
   const connectedTopics = useMemo(() => {
+    if (subTopicPath.length > 0) return []; // No connected topics when viewing sub-topics
+    
     const relatedConnections = connections.filter(
       c => c.from === topic.id || c.to === topic.id
     );
@@ -48,7 +66,34 @@ export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown
       const connectedTopic = topics.find(t => t.id === connectedId);
       return connectedTopic ? { ...connectedTopic, relationship: conn.relationship } : null;
     }).filter(Boolean) as (Topic & { relationship?: string })[];
-  }, [topic]);
+  }, [topic, subTopicPath.length]);
+
+  const handleSubTopicClick = (subTopic: SubTopic) => {
+    setSubTopicPath(prev => [...prev, subTopic]);
+    setShowDeepDive(false);
+  };
+
+  const handleSubTopicBreadcrumbClick = (index: number) => {
+    if (index === -1) {
+      setSubTopicPath([]);
+    } else {
+      setSubTopicPath(prev => prev.slice(0, index + 1));
+    }
+    setShowDeepDive(false);
+  };
+
+  const handleBackToMap = (index: number) => {
+    setSubTopicPath([]);
+    onNavigateBack(index);
+  };
+
+  // Build full navigation including sub-topics
+  const fullNavigation: NavigationItem[] = [
+    ...navigationPath.map(t => ({ id: t.id, name: t.name, type: 'topic' as const })),
+    ...subTopicPath.map(st => ({ id: st.id, name: st.name, type: 'subtopic' as const })),
+  ];
+
+  const category = 'category' in topic ? topic.category : 'strategy';
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -61,20 +106,48 @@ export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <nav className="flex items-center gap-1 text-sm overflow-x-auto">
-                <button onClick={() => onNavigateBack(-1)} className="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground">
+                <button onClick={() => handleBackToMap(-1)} className="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground">
                   <Home className="w-4 h-4" />
                   <span className="hidden sm:inline">Map</span>
                 </button>
                 {navigationPath.map((pathTopic, index) => (
                   <div key={pathTopic.id} className="flex items-center">
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                    <button onClick={() => onNavigateBack(index)} className={`px-2 py-1 rounded-md transition-colors ${index === navigationPath.length - 1 ? 'text-foreground font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
+                    <button 
+                      onClick={() => {
+                        if (index === navigationPath.length - 1 && subTopicPath.length === 0) return;
+                        setSubTopicPath([]);
+                        if (index < navigationPath.length - 1) {
+                          handleBackToMap(index);
+                        }
+                      }} 
+                      className={`px-2 py-1 rounded-md transition-colors ${
+                        index === navigationPath.length - 1 && subTopicPath.length === 0 
+                          ? 'text-foreground font-medium' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary cursor-pointer'
+                      }`}
+                    >
                       {pathTopic.name}
                     </button>
                   </div>
                 ))}
+                {subTopicPath.map((subTopic, index) => (
+                  <div key={subTopic.id} className="flex items-center">
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    <button 
+                      onClick={() => index < subTopicPath.length - 1 && handleSubTopicBreadcrumbClick(index)} 
+                      className={`px-2 py-1 rounded-md transition-colors ${
+                        index === subTopicPath.length - 1 
+                          ? 'text-foreground font-medium' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary cursor-pointer'
+                      }`}
+                    >
+                      {subTopic.name}
+                    </button>
+                  </div>
+                ))}
               </nav>
-              <Button variant="outline" size="sm" onClick={() => onNavigateBack(-1)} className="gap-2">
+              <Button variant="outline" size="sm" onClick={() => handleBackToMap(-1)} className="gap-2">
                 <ZoomOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>
               </Button>
@@ -84,14 +157,67 @@ export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown
 
         <main className="container mx-auto px-4 py-8 max-w-4xl">
           {/* Topic Header */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border mb-4 ${getCategoryBadgeClass(topic.category)}`}>
-              {categoryLabels[topic.category]}
+          <motion.div 
+            key={currentContent.id} 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            className="text-center mb-8"
+          >
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border mb-4 ${getCategoryBadgeClass(category)}`}>
+              {subTopicPath.length > 0 ? (
+                <>
+                  <Layers className="w-3 h-3 mr-1" />
+                  Sub-topic • {categoryLabels[category as keyof typeof categoryLabels]}
+                </>
+              ) : (
+                categoryLabels[category as keyof typeof categoryLabels]
+              )}
             </span>
-            <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">{topic.name}</h1>
-            <p className="text-muted-foreground text-lg">{topic.description}</p>
-            <p className="text-sm text-muted-foreground mt-2">{topic.episodeCount} episodes</p>
+            <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">{currentContent.name}</h1>
+            <p className="text-muted-foreground text-lg">{currentContent.description}</p>
+            {'episodeCount' in currentContent && typeof currentContent.episodeCount === 'number' && (
+              <p className="text-sm text-muted-foreground mt-2">{currentContent.episodeCount} episodes</p>
+            )}
           </motion.div>
+
+          {/* Sub-Topics Section */}
+          {currentSubTopics.length > 0 && (
+            <motion.section 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: 0.05 }} 
+              className="mb-8"
+            >
+              <h2 className="font-display text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Layers className="w-5 h-5 text-primary" />
+                Explore Deeper
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {currentSubTopics.map((subTopic, i) => (
+                  <motion.button
+                    key={subTopic.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05 }}
+                    onClick={() => handleSubTopicClick(subTopic)}
+                    className={`group p-4 rounded-xl border-2 text-left hover:scale-[1.02] transition-all ${getCategoryColor(category)}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-foreground">{subTopic.name}</span>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{subTopic.description}</p>
+                    {subTopic.subTopics && subTopic.subTopics.length > 0 && (
+                      <span className="inline-flex items-center gap-1 text-xs text-primary mt-2">
+                        <Layers className="w-3 h-3" />
+                        {subTopic.subTopics.length} more level{subTopic.subTopics.length > 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+            </motion.section>
+          )}
 
           {/* Key Insights */}
           <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-8">
@@ -100,7 +226,7 @@ export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown
               Key Insights
             </h2>
             <div className="grid gap-4">
-              {topic.keyInsights.map((insight, i) => (
+              {currentContent.keyInsights.map((insight, i) => (
                 <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.1 }} className="glass-panel rounded-xl p-4">
                   <h3 className="font-semibold text-foreground mb-1">{insight.title}</h3>
                   <p className="text-muted-foreground text-sm">{insight.summary}</p>
@@ -120,7 +246,7 @@ export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown
             </button>
             {showDeepDive && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-4 space-y-4">
-                {topic.deepDive.map((point, i) => {
+                {currentContent.deepDive.map((point, i) => {
                   const hasBoldHeader = point.startsWith('**');
                   const parts = hasBoldHeader ? point.split('**') : [point];
                   const header = hasBoldHeader ? parts[1] : null;
@@ -139,8 +265,8 @@ export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown
             )}
           </motion.section>
 
-          {/* Connected Topics */}
-          {connectedTopics.length > 0 && (
+          {/* Connected Topics (only show at topic level, not sub-topic level) */}
+          {connectedTopics.length > 0 && subTopicPath.length === 0 && (
             <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
               <h2 className="font-display text-xl font-semibold text-foreground mb-4">Related Topics</h2>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -152,6 +278,20 @@ export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown
                 ))}
               </div>
             </motion.section>
+          )}
+
+          {/* Back to parent sub-topic button */}
+          {subTopicPath.length > 0 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-8 text-center">
+              <Button 
+                variant="outline" 
+                onClick={() => handleSubTopicBreadcrumbClick(subTopicPath.length - 2)}
+                className="gap-2"
+              >
+                <ChevronRight className="w-4 h-4 rotate-180" />
+                Back to {subTopicPath.length === 1 ? topic.name : subTopicPath[subTopicPath.length - 2].name}
+              </Button>
+            </motion.div>
           )}
         </main>
       </div>
