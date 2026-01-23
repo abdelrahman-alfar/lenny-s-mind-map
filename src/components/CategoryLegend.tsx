@@ -13,6 +13,8 @@ const categories: { key: TopicCategory; colorClass: string }[] = [
   { key: 'execution', colorClass: 'bg-execution' },
   { key: 'skills', colorClass: 'bg-skills' },
   { key: 'career', colorClass: 'bg-career' },
+  { key: 'startup', colorClass: 'bg-startup' },
+  { key: 'people', colorClass: 'bg-people' },
 ];
 
 export function CategoryLegend({ activeCategory, onCategoryClick }: CategoryLegendProps) {

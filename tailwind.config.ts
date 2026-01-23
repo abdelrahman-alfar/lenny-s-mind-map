@@ -68,6 +68,8 @@ export default {
         "execution": "hsl(var(--execution))",
         "skills": "hsl(var(--skills))",
         "career": "hsl(var(--career))",
+        "startup": "hsl(var(--startup))",
+        "people": "hsl(var(--people))",
       },
       borderRadius: {
         lg: "var(--radius)",

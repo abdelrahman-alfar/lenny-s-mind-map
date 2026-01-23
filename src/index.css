@@ -49,6 +49,8 @@
     --execution: 32 95% 55%;      /* Warm Orange */
     --skills: 187 85% 45%;        /* Cyan/Teal */
     --career: 340 82% 60%;        /* Hot Pink/Rose */
+    --startup: 45 95% 55%;        /* Golden Yellow */
+    --people: 200 75% 50%;        /* Sky Blue */
 
     /* Glow effects */
     --glow-primary: 0 0 30px hsl(217 91% 60% / 0.4);
