@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Home, ChevronRight, ZoomOut, ChevronDown, ChevronUp, Lightbulb, BookOpen, Layers, ArrowRight, Bookmark, Download, Loader2 } from "lucide-react";
-import { Topic, SubTopic, topics, connections, categoryLabels } from "@/data/knowledgeMap";
+import { Topic, SubTopic, topics, connections, categoryLabels, normalizeDeepDivePoint } from "@/data/knowledgeMap";
 import { Button } from "./ui/button";
 import { useBookmarkContext } from "@/contexts/BookmarkContext";
 import { useExportPdf } from "@/hooks/useExportPdf";
@@ -168,11 +168,12 @@ function DeepDiveSection({
       </button>
       {showDeepDive && (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-4 space-y-4">
-          {currentContent.deepDive.map((point, i) => {
-            const hasBoldHeader = point.startsWith('**');
-            const parts = hasBoldHeader ? point.split('**') : [point];
+          {currentContent.deepDive.map((rawPoint, i) => {
+            const point = normalizeDeepDivePoint(rawPoint);
+            const hasBoldHeader = point.text.startsWith('**');
+            const parts = hasBoldHeader ? point.text.split('**') : [point.text];
             const header = hasBoldHeader ? parts[1] : null;
-            const content = hasBoldHeader ? parts.slice(2).join('').replace(/^:\s*/, '') : point;
+            const content = hasBoldHeader ? parts.slice(2).join('').replace(/^:\s*/, '') : point.text;
             const title = header || 'Deep Dive';
             const bookmarked = isBookmarked(topic.id, subTopicPath, 'deepDive', title);
             
@@ -190,6 +191,9 @@ function DeepDiveSection({
                       <h4 className="font-semibold text-foreground mb-2">{header}</h4>
                     )}
                     <p className="text-muted-foreground text-sm leading-relaxed">{content}</p>
+                    {point.speaker && (
+                      <p className="text-xs text-primary mt-2 italic">— {point.speaker}</p>
+                    )}
                   </div>
                   <button
                     onClick={() => handleBookmarkToggle(header, content)}

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { jsPDF } from 'jspdf';
-import { Topic, SubTopic, categoryLabels } from '@/data/knowledgeMap';
+import { Topic, SubTopic, categoryLabels, normalizeDeepDivePoint } from '@/data/knowledgeMap';
 import { useToast } from '@/hooks/use-toast';
 
 type ViewableContent = Topic | SubTopic;
@@ -107,13 +107,14 @@ export function useExportPdf() {
         pdf.text('Deep Dive', margin, yPos);
         yPos += 10;
 
-        currentContent.deepDive.forEach((point) => {
-          const hasBoldHeader = point.startsWith('**');
-          const parts = hasBoldHeader ? point.split('**') : [point];
+        currentContent.deepDive.forEach((rawPoint) => {
+          const point = normalizeDeepDivePoint(rawPoint);
+          const hasBoldHeader = point.text.startsWith('**');
+          const parts = hasBoldHeader ? point.text.split('**') : [point.text];
           const header = hasBoldHeader ? parts[1] : null;
-          const content = hasBoldHeader ? parts.slice(2).join('').replace(/^:\s*/, '') : point;
+          const content = hasBoldHeader ? parts.slice(2).join('').replace(/^:\s*/, '') : point.text;
 
-          checkPageBreak(20);
+          checkPageBreak(25);
 
           if (header) {
             pdf.setFontSize(11);
@@ -127,7 +128,17 @@ export function useExportPdf() {
           pdf.setTextColor(80, 80, 80);
           const contentLines = pdf.splitTextToSize(content, contentWidth - 10);
           pdf.text(contentLines, margin + 10, yPos);
-          yPos += contentLines.length * 4 + 6;
+          yPos += contentLines.length * 4 + 2;
+
+          // Add speaker attribution
+          if (point.speaker) {
+            pdf.setFontSize(9);
+            pdf.setTextColor(100, 100, 180);
+            pdf.text(`— ${point.speaker}`, margin + 10, yPos);
+            yPos += 6;
+          }
+          
+          yPos += 4;
         });
       }
 

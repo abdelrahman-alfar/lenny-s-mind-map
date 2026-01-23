@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { Search, X, Lightbulb, BookOpen, ChevronRight, Clock, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { topics, Topic, SubTopic, categoryLabels } from "@/data/knowledgeMap";
+import { topics, Topic, SubTopic, categoryLabels, normalizeDeepDivePoint } from "@/data/knowledgeMap";
 
 const RECENT_SEARCHES_KEY = 'knowledge-map-recent-searches';
 const MAX_RECENT_SEARCHES = 5;
@@ -78,13 +78,14 @@ function searchInContent(
   });
   
   // Search in deep dive
-  currentContent.deepDive.forEach(point => {
-    if (point.toLowerCase().includes(lowerQuery)) {
+  currentContent.deepDive.forEach(rawPoint => {
+    const point = normalizeDeepDivePoint(rawPoint);
+    if (point.text.toLowerCase().includes(lowerQuery)) {
       // Extract header if exists
-      const hasBoldHeader = point.startsWith('**');
-      const parts = hasBoldHeader ? point.split('**') : [point];
+      const hasBoldHeader = point.text.startsWith('**');
+      const parts = hasBoldHeader ? point.text.split('**') : [point.text];
       const header = hasBoldHeader ? parts[1] : null;
-      const content = hasBoldHeader ? parts.slice(2).join('').replace(/^:\s*/, '') : point;
+      const content = hasBoldHeader ? parts.slice(2).join('').replace(/^:\s*/, '') : point.text;
       
       results.push({
         topicId: topic.id,
