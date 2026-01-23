@@ -199,7 +199,7 @@ export function KnowledgeMap() {
                     PM Knowledge Map
                   </h1>
                   <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    {dynamicEpisodeCount || getTotalEpisodes()} episodes from Lenny's Podcast
+                    From Lenny's Podcast
                   </p>
                 </div>
               </motion.div>
