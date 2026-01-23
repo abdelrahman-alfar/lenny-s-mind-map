@@ -1,9 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Bookmark, Trash2, Lightbulb, BookOpen, ChevronRight, Clock } from "lucide-react";
+import { X, Bookmark, Trash2, Lightbulb, BookOpen, ChevronRight, Clock, Download, Loader2 } from "lucide-react";
 import { useBookmarkContext } from "@/contexts/BookmarkContext";
 import { Button } from "./ui/button";
 import { categoryLabels } from "@/data/knowledgeMap";
 import { formatDistanceToNow } from "date-fns";
+import { useExportBookmarksPdf } from "@/hooks/useExportBookmarksPdf";
 
 interface SavedItemsPanelProps {
   isOpen: boolean;
@@ -25,10 +26,15 @@ const getCategoryBadgeClass = (category: string) => {
 
 export function SavedItemsPanel({ isOpen, onClose, onItemClick }: SavedItemsPanelProps) {
   const { bookmarks, removeBookmark, clearAllBookmarks } = useBookmarkContext();
+  const { exportBookmarksToPdf, isExporting } = useExportBookmarksPdf();
 
   const handleItemClick = (bookmark: typeof bookmarks[0]) => {
     onItemClick(bookmark.topicId, bookmark.subTopicPath);
     onClose();
+  };
+
+  const handleExportPdf = () => {
+    exportBookmarksToPdf(bookmarks);
   };
 
   return (
@@ -63,15 +69,31 @@ export function SavedItemsPanel({ isOpen, onClose, onItemClick }: SavedItemsPane
               </div>
               <div className="flex items-center gap-2">
                 {bookmarks.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearAllBookmarks}
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    Clear all
-                  </Button>
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleExportPdf}
+                      disabled={isExporting}
+                      className="text-muted-foreground hover:text-primary"
+                    >
+                      {isExporting ? (
+                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4 mr-1" />
+                      )}
+                      Export PDF
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearAllBookmarks}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Clear all
+                    </Button>
+                  </>
                 )}
                 <button
                   onClick={onClose}
