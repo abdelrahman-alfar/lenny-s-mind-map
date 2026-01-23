@@ -212,11 +212,11 @@ export const topics: Topic[] = [
       { title: 'Stack rank, don\'t bucket', summary: 'Forced ranking creates clarity. "High priority" buckets become dumping grounds.' },
     ],
     deepDive: [
-      'RICE (Reach, Impact, Confidence, Effort) works but requires honest confidence scoring.',
-      'The best prioritization frameworks are simple and consistently applied.',
-      'Weekly priority reviews prevent drift and maintain focus.',
-      'Customer requests should inform, not dictate, priorities.',
-      'Technical debt should be prioritized like features - with measurable impact.',
+      { text: 'RICE (Reach, Impact, Confidence, Effort) works but requires honest confidence scoring.', speaker: 'Sean Ellis' },
+      { text: 'The best prioritization frameworks are simple and consistently applied.', speaker: 'Shreyas Doshi' },
+      { text: 'Weekly priority reviews prevent drift and maintain focus.', speaker: 'Lenny Rachitsky' },
+      { text: 'Customer requests should inform, not dictate, priorities.', speaker: 'Marty Cagan' },
+      { text: 'Technical debt should be prioritized like features - with measurable impact.', speaker: 'Will Larson' },
     ]
   },
   {
