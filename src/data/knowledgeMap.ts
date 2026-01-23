@@ -4,6 +4,12 @@
 export interface TopicInsight {
   title: string;
   summary: string;
+  speaker?: string;
+}
+
+export interface DeepDivePoint {
+  text: string;
+  speaker?: string;
 }
 
 export interface SubTopic {
@@ -11,7 +17,7 @@ export interface SubTopic {
   name: string;
   description: string;
   keyInsights: TopicInsight[];
-  deepDive: string[];
+  deepDive: (string | DeepDivePoint)[];
   subTopics?: SubTopic[];
 }
 
@@ -22,8 +28,16 @@ export interface Topic {
   category: TopicCategory;
   description: string;
   keyInsights: TopicInsight[];
-  deepDive: string[];
+  deepDive: (string | DeepDivePoint)[];
   subTopics?: SubTopic[];
+}
+
+// Helper to normalize deep dive points
+export function normalizeDeepDivePoint(point: string | DeepDivePoint): DeepDivePoint {
+  if (typeof point === 'string') {
+    return { text: point };
+  }
+  return point;
 }
 
 export type TopicCategory = 
@@ -67,14 +81,14 @@ export const topics: Topic[] = [
       { title: 'Strategy creates asymmetric bets', summary: 'Good strategy finds the unique insight that gives you an unfair advantage over competitors.' },
     ],
     deepDive: [
-      '**The Four Questions Every Strategy Must Answer**: Who is our customer (be specific)? What problem do we solve for them? Why are we uniquely positioned to win? Why is now the right time?',
-      '**Strategy vs Tactics**: Strategy is the high-level approach that remains stable for 1-3 years. Tactics are the quarter-by-quarter execution of that strategy. Most teams confuse the two.',
-      '**The One-Page Strategy Test**: If your strategy doesn\'t fit on one page, you don\'t understand it well enough. Complexity is the enemy of execution.',
-      '**Opinionated Strategies Win**: If everyone agrees with your strategy, it\'s not a strategy - it\'s a platitude. Real strategies are controversial because they make clear tradeoffs.',
-      '**Strategy Review Cadence**: Revisit strategy quarterly to check if assumptions still hold. But don\'t change reactively to every market signal - that\'s not strategy, that\'s whiplash.',
-      '**PM Time Allocation**: The best PMs spend roughly 40% of time on strategy (where are we going), 40% on execution (shipping quality products), and 20% on team (developing people, managing stakeholders).',
-      '**Competitive Positioning**: You don\'t just choose your customers - you choose your competitors. Position yourself where you can win, not where the biggest market is.',
-      '**The Strategy Kernel (Richard Rumelt)**: Diagnosis (what\'s the challenge), Guiding Policy (the approach), Coherent Actions (coordinated steps). Most "strategies" are just goals without the kernel.',
+      { text: '**The Four Questions Every Strategy Must Answer**: Who is our customer (be specific)? What problem do we solve for them? Why are we uniquely positioned to win? Why is now the right time?', speaker: 'Gibson Biddle' },
+      { text: '**Strategy vs Tactics**: Strategy is the high-level approach that remains stable for 1-3 years. Tactics are the quarter-by-quarter execution of that strategy. Most teams confuse the two.', speaker: 'Shreyas Doshi' },
+      { text: '**The One-Page Strategy Test**: If your strategy doesn\'t fit on one page, you don\'t understand it well enough. Complexity is the enemy of execution.', speaker: 'Lenny Rachitsky' },
+      { text: '**Opinionated Strategies Win**: If everyone agrees with your strategy, it\'s not a strategy - it\'s a platitude. Real strategies are controversial because they make clear tradeoffs.', speaker: 'April Dunford' },
+      { text: '**Strategy Review Cadence**: Revisit strategy quarterly to check if assumptions still hold. But don\'t change reactively to every market signal - that\'s not strategy, that\'s whiplash.', speaker: 'Marty Cagan' },
+      { text: '**PM Time Allocation**: The best PMs spend roughly 40% of time on strategy (where are we going), 40% on execution (shipping quality products), and 20% on team (developing people, managing stakeholders).', speaker: 'Shreyas Doshi' },
+      { text: '**Competitive Positioning**: You don\'t just choose your customers - you choose your competitors. Position yourself where you can win, not where the biggest market is.', speaker: 'April Dunford' },
+      { text: '**The Strategy Kernel (Richard Rumelt)**: Diagnosis (what\'s the challenge), Guiding Policy (the approach), Coherent Actions (coordinated steps). Most "strategies" are just goals without the kernel.', speaker: 'Richard Rumelt' },
     ],
     subTopics: [
       {
