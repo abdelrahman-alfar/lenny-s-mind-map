@@ -43,6 +43,8 @@ const getCategoryBadgeClass = (category: string) => {
     'execution': 'bg-execution/20 text-execution border-execution/30',
     'skills': 'bg-skills/20 text-skills border-skills/30',
     'career': 'bg-career/20 text-career border-career/30',
+    'startup': 'bg-startup/20 text-startup border-startup/30',
+    'people': 'bg-people/20 text-people border-people/30',
   };
   return classes[category] || 'bg-primary/20 text-primary';
 };

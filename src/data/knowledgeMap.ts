@@ -46,7 +46,9 @@ export type TopicCategory =
   | 'leadership'
   | 'execution'
   | 'skills'
-  | 'career';
+  | 'career'
+  | 'startup'
+  | 'people';
 
 export const categoryColors: Record<TopicCategory, string> = {
   'strategy': 'hsl(var(--strategy))',
@@ -55,6 +57,8 @@ export const categoryColors: Record<TopicCategory, string> = {
   'execution': 'hsl(var(--execution))',
   'skills': 'hsl(var(--skills))',
   'career': 'hsl(var(--career))',
+  'startup': 'hsl(var(--startup))',
+  'people': 'hsl(var(--people))',
 };
 
 export const categoryLabels: Record<TopicCategory, string> = {
@@ -64,6 +68,8 @@ export const categoryLabels: Record<TopicCategory, string> = {
   'execution': 'Execution',
   'skills': 'Skills',
   'career': 'Career',
+  'startup': 'Startup',
+  'people': 'People',
 };
 
 export const topics: Topic[] = [
@@ -465,7 +471,7 @@ export const topics: Topic[] = [
     id: 'entrepreneurship',
     name: 'Entrepreneurship',
     episodeCount: 52,
-    category: 'leadership',
+    category: 'startup',
     description: 'Starting and building companies from zero',
     keyInsights: [
       { title: 'Start with a problem, not a solution', summary: 'Fall in love with the problem. Solutions can change; deep problem understanding is the asset.' },
@@ -489,7 +495,7 @@ export const topics: Topic[] = [
     id: 'team-building',
     name: 'Team Building',
     episodeCount: 20,
-    category: 'leadership',
+    category: 'people',
     description: 'Creating high-performing product teams',
     keyInsights: [
       { title: 'Small teams ship faster', summary: 'Two-pizza teams (6-10 people) move faster than larger groups.' },
@@ -508,7 +514,7 @@ export const topics: Topic[] = [
     id: 'hiring',
     name: 'Hiring',
     episodeCount: 19,
-    category: 'leadership',
+    category: 'people',
     description: 'Attracting and selecting the right talent',
     keyInsights: [
       { title: 'Hire slowly, fire quickly', summary: 'Take time to find the right person. Act fast when it\'s not working.' },
@@ -527,7 +533,7 @@ export const topics: Topic[] = [
     id: 'company-culture',
     name: 'Company Culture',
     episodeCount: 22,
-    category: 'leadership',
+    category: 'people',
     description: 'Building and maintaining organizational culture',
     keyInsights: [
       { title: 'Culture is behavior, not posters', summary: 'Culture is what people do when no one is watching, not what\'s written on the wall.' },
@@ -546,7 +552,7 @@ export const topics: Topic[] = [
     id: 'founder-mode',
     name: 'Founder Mode',
     episodeCount: 7,
-    category: 'leadership',
+    category: 'startup',
     description: 'Maintaining founder mentality as companies scale',
     keyInsights: [
       { title: 'Stay close to the details', summary: 'Great founders maintain deep product involvement even at scale.' },
@@ -799,7 +805,7 @@ export const topics: Topic[] = [
     id: 'venture-capital',
     name: 'Venture Capital',
     episodeCount: 21,
-    category: 'leadership',
+    category: 'startup',
     description: 'Understanding VCs and the fundraising process',
     keyInsights: [
       { title: 'VCs are pattern matchers', summary: 'They look for patterns of success. Understand what patterns they seek.' },

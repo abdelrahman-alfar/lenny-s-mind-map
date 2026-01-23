@@ -28,6 +28,8 @@ const getCategoryBadgeClass = (category: string) => {
     'execution': 'bg-execution/20 text-execution',
     'skills': 'bg-skills/20 text-skills',
     'career': 'bg-career/20 text-career',
+    'startup': 'bg-startup/20 text-startup',
+    'people': 'bg-people/20 text-people',
   };
   return classes[category] || 'bg-primary/20 text-primary';
 };

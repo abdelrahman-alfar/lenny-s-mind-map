@@ -36,6 +36,8 @@ const getCategoryColor = (category: string) => {
     'execution': 'bg-execution/20 border-execution hover:bg-execution/30',
     'skills': 'bg-skills/20 border-skills hover:bg-skills/30',
     'career': 'bg-career/20 border-career hover:bg-career/30',
+    'startup': 'bg-startup/20 border-startup hover:bg-startup/30',
+    'people': 'bg-people/20 border-people hover:bg-people/30',
   };
   return colors[category] || 'bg-primary/20 border-primary';
 };
@@ -48,6 +50,8 @@ const getGlowColor = (category: string) => {
     'execution': 'shadow-[0_0_30px_hsl(32,95%,55%,0.5)]',
     'skills': 'shadow-[0_0_30px_hsl(187,85%,45%,0.5)]',
     'career': 'shadow-[0_0_30px_hsl(340,82%,60%,0.5)]',
+    'startup': 'shadow-[0_0_30px_hsl(45,95%,55%,0.5)]',
+    'people': 'shadow-[0_0_30px_hsl(200,75%,50%,0.5)]',
   };
   return glows[category] || '';
 };
