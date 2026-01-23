@@ -2,12 +2,11 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, Database } from "lucide-react";
 import { Button } from "./ui/button";
-import { useLatestSync, useEpisodeCount } from "@/hooks/useSyncedEpisodes";
+import { useLatestSync } from "@/hooks/useSyncedEpisodes";
 import { formatDistanceToNow } from "date-fns";
 
 export function SyncStatus() {
   const { data: latestSync, isLoading: syncLoading } = useLatestSync();
-  const { data: episodeCount, isLoading: countLoading } = useEpisodeCount();
   const [showDetails, setShowDetails] = useState(false);
 
   const lastSyncTime = latestSync?.completed_at 
@@ -23,9 +22,6 @@ export function SyncStatus() {
         className="gap-2 text-muted-foreground hover:text-foreground"
       >
         <Database className="w-4 h-4" />
-        <span className="hidden sm:inline">
-          {countLoading ? "..." : `${episodeCount || 0} episodes`}
-        </span>
       </Button>
 
       <AnimatePresence>
