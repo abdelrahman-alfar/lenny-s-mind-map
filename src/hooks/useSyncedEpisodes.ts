@@ -52,16 +52,24 @@ export function useLatestSync() {
   return useQuery({
     queryKey: ['latest-sync'],
     queryFn: async () => {
+      // Get the most recently synced episode as a proxy for last sync time
+      // (sync_logs table is not publicly accessible for security)
       const { data, error } = await supabase
-        .from('sync_logs')
-        .select('*')
-        .eq('status', 'completed')
-        .order('completed_at', { ascending: false })
+        .from('synced_episodes')
+        .select('synced_at')
+        .order('synced_at', { ascending: false })
         .limit(1)
         .maybeSingle();
       
       if (error) throw error;
-      return data as SyncLog | null;
+      
+      if (data) {
+        return {
+          completed_at: data.synced_at,
+          status: 'completed',
+        } as Partial<SyncLog>;
+      }
+      return null;
     },
   });
 }
@@ -76,24 +84,6 @@ export function useEpisodeCount() {
       
       if (error) throw error;
       return count || 0;
-    },
-  });
-}
-
-export function useTriggerSync() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('sync-github-episodes');
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ['synced-episodes'] });
-      queryClient.invalidateQueries({ queryKey: ['latest-sync'] });
-      queryClient.invalidateQueries({ queryKey: ['episode-count'] });
     },
   });
 }
