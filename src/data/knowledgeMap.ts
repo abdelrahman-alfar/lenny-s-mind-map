@@ -6,6 +6,15 @@ export interface TopicInsight {
   summary: string;
 }
 
+export interface SubTopic {
+  id: string;
+  name: string;
+  description: string;
+  keyInsights: TopicInsight[];
+  deepDive: string[];
+  subTopics?: SubTopic[];
+}
+
 export interface Topic {
   id: string;
   name: string;
@@ -14,6 +23,7 @@ export interface Topic {
   description: string;
   keyInsights: TopicInsight[];
   deepDive: string[];
+  subTopics?: SubTopic[];
 }
 
 export type TopicCategory = 
@@ -65,7 +75,91 @@ export const topics: Topic[] = [
       '**PM Time Allocation**: The best PMs spend roughly 40% of time on strategy (where are we going), 40% on execution (shipping quality products), and 20% on team (developing people, managing stakeholders).',
       '**Competitive Positioning**: You don\'t just choose your customers - you choose your competitors. Position yourself where you can win, not where the biggest market is.',
       '**The Strategy Kernel (Richard Rumelt)**: Diagnosis (what\'s the challenge), Guiding Policy (the approach), Coherent Actions (coordinated steps). Most "strategies" are just goals without the kernel.',
-    ]
+    ],
+    subTopics: [
+      {
+        id: 'positioning',
+        name: 'Positioning',
+        description: 'How you frame your product in the market determines who you compete with and how you win',
+        keyInsights: [
+          { title: 'Positioning is a choice', summary: 'You actively choose how to be perceived. Default positioning means the market decides for you.' },
+          { title: 'Category creation can be powerful', summary: 'Creating a new category lets you define the rules, but it\'s expensive to educate the market.' },
+          { title: 'Competitive alternatives define you', summary: 'Your positioning is relative to what customers would use instead of you.' },
+        ],
+        deepDive: [
+          '**April Dunford\'s Positioning Framework**: Competitive alternatives → Unique attributes → Value for customer → Target segment → Market category. Do these in order.',
+          '**The Positioning Statement Template**: For [target customer] who [statement of need], [product] is a [category] that [key benefit]. Unlike [competitor], we [key differentiator].',
+          '**Re-positioning Triggers**: Major product changes, entering new markets, competitive landscape shifts, or stalled growth often require repositioning.',
+        ],
+        subTopics: [
+          {
+            id: 'competitive-positioning',
+            name: 'Competitive Positioning',
+            description: 'Understanding and leveraging your position relative to competitors',
+            keyInsights: [
+              { title: 'Pick your battles', summary: 'Position where you can win, not where the biggest market is. Being #3 in a huge market often means losing.' },
+              { title: 'Competitive alternatives aren\'t just competitors', summary: 'Include spreadsheets, manual processes, and "do nothing" as alternatives customers consider.' },
+              { title: 'Differentiation must matter to buyers', summary: 'Being different on things customers don\'t care about is meaningless differentiation.' },
+            ],
+            deepDive: [
+              '**The Competitive Landscape Map**: Plot competitors on two axes that matter to customers. Find the white space or own a dimension.',
+              '**Flanking vs Frontal Attacks**: Frontal attacks on market leaders rarely work. Flanking (different dimension, different segment) is usually better.',
+              '**Competitive Intelligence Discipline**: Regular win/loss analysis, quarterly competitive reviews, and monitoring competitor changes.',
+              '**Switching Costs as Moats**: High switching costs from data lock-in, integrations, or workflows create defensible positions.',
+              '**When to Ignore Competitors**: Sometimes the best strategy is to focus entirely on customers and ignore competitive moves. Works when you\'re creating a new category.',
+            ],
+          },
+          {
+            id: 'category-design',
+            name: 'Category Design',
+            description: 'Creating and owning a new market category',
+            keyInsights: [
+              { title: 'Category kings capture 76% of value', summary: 'In tech, the category leader typically captures most of the market value. Second place is distant.' },
+              { title: 'Categories need a problem narrative', summary: 'You must articulate a problem that\'s been unnamed or misunderstood. The problem is the category.' },
+              { title: 'Category creation is expensive', summary: 'Educating the market on a new category requires significant investment in content, evangelism, and patience.' },
+            ],
+            deepDive: [
+              '**The Category Creation Playbook**: Name the problem → Define the new category → Position yourself as the leader → Evangelize relentlessly → Let the category grow around you.',
+              '**Lightning Strike Strategy**: Major announcements that capture attention and establish category leadership. Requires coordinated PR, content, and event strategy.',
+              '**The POV (Point of View)**: Your unique perspective on why the old way is broken and the new way is inevitable. This becomes your content marketing engine.',
+              '**Category Maturation**: Early: educate on the problem. Middle: differentiate from followers. Late: defend leadership position.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'vision-setting',
+        name: 'Vision Setting',
+        description: 'Crafting a compelling product vision that guides strategy',
+        keyInsights: [
+          { title: 'Vision is the destination', summary: 'Vision describes the future state. Strategy is how you\'ll get there. Most confuse the two.' },
+          { title: 'Good visions are inspiring AND actionable', summary: 'If the vision doesn\'t help make decisions, it\'s just a poster.' },
+          { title: 'Vision evolves, but slowly', summary: 'Vision should be stable for 3-5 years. If it changes quarterly, it\'s not a vision.' },
+        ],
+        deepDive: [
+          '**The Press Release Test**: Write the press release you\'d want in 3 years. Does it excite you? Does it guide decisions today?',
+          '**Vision Components**: Who you serve, what problem you solve, what the world looks like when you win, and why only you can do this.',
+          '**Communicating Vision**: Repeat it constantly. Use stories, not just statements. Show, don\'t just tell.',
+          '**Vision vs Mission**: Mission is purpose (why you exist). Vision is destination (what you\'re building toward). Both matter.',
+        ],
+      },
+      {
+        id: 'strategic-planning',
+        name: 'Strategic Planning',
+        description: 'Translating vision into actionable strategic plans',
+        keyInsights: [
+          { title: 'Strategy is a hypothesis', summary: 'Treat strategy as a bet you\'re making based on assumptions. Test the assumptions.' },
+          { title: 'Annual planning is often theater', summary: 'Effective strategic planning is continuous, not a once-a-year exercise.' },
+          { title: 'Strategy needs tradeoffs', summary: 'If you\'re not explicitly choosing what NOT to do, you don\'t have a strategy.' },
+        ],
+        deepDive: [
+          '**The Strategy Cascade**: Vision → Strategic priorities (3-5) → Initiatives → Metrics → Resource allocation. Each level should clearly connect to the one above.',
+          '**Rolling 4-Quarter Planning**: Plan in detail for next quarter, directionally for the next 2-3, loosely for Q4. Adjust each quarter.',
+          '**Strategic Bets Framework**: For each major bet: What are we betting? What assumptions must be true? How will we know if it\'s working? What\'s the exit criteria?',
+          '**Resource Allocation Reality**: Strategy is revealed by where you actually spend money and headcount, not by what\'s in the strategy doc.',
+        ],
+      },
+    ],
   },
   {
     id: 'product-market-fit',
@@ -166,7 +260,76 @@ export const topics: Topic[] = [
       '**Compounding Math**: 5% week-over-week growth = 12.6x growth annually. 7% weekly = 33x. This is why consistent, sustainable growth beats big launches.',
       '**Growth Accounting**: New users + Resurrected users - Churned users = Net growth. Track all three separately. Often "growth" masks terrible churn.',
       '**Channel Saturation**: Every acquisition channel saturates. Facebook ads worked great in 2015. Plan for channel diversification before your main channel saturates.',
-    ]
+    ],
+    subTopics: [
+      {
+        id: 'growth-loops',
+        name: 'Growth Loops',
+        description: 'Self-reinforcing systems that drive sustainable growth',
+        keyInsights: [
+          { title: 'Loops beat funnels', summary: 'Funnels have an end. Loops reinvest output as input, creating compounding growth.' },
+          { title: 'Every company has a primary loop', summary: '70%+ of growth comes from one loop. Find it, understand it, optimize it.' },
+          { title: 'Loops have natural limits', summary: 'Every loop eventually saturates. Build the next loop before the current one plateaus.' },
+        ],
+        deepDive: [
+          '**Content Loops**: User creates content → Content indexed by search → New user discovers content → Becomes user → Creates more content. Examples: Pinterest, Quora, TripAdvisor.',
+          '**Viral Loops**: User gets value → Shares with others → Others sign up → They share. The K-factor (invites × conversion rate) must exceed 1 for true virality.',
+          '**Paid Loops**: Revenue → Invest in acquisition → More users → More revenue. Requires payback period < acceptable threshold (usually < 12 months).',
+          '**Sales Loops**: Customer success → Case studies/referrals → Credibility → More enterprise sales. Common in B2B SaaS.',
+          '**Loop Optimization**: Map your loop, identify the slowest/leakiest step, improve that step, repeat.',
+        ],
+        subTopics: [
+          {
+            id: 'viral-loops',
+            name: 'Viral Loops',
+            description: 'Engineering word-of-mouth into your product',
+            keyInsights: [
+              { title: 'K-factor determines virality', summary: 'K = invites per user × conversion rate. K > 1 means exponential growth. K < 1 means paid acquisition needed.' },
+              { title: 'Viral ≠ growth hack', summary: 'True virality is built into the product value, not tricks or incentives.' },
+              { title: 'Invite flow UX is critical', summary: 'Reduce friction in sharing. Pre-fill content. Make it valuable for both sender and receiver.' },
+            ],
+            deepDive: [
+              '**Types of Virality**: Inherent (product requires others - Slack, Zoom), Collaborative (better with others - Google Docs), Word-of-mouth (so good people talk about it).',
+              '**Dropbox\'s Viral Playbook**: Give both referrer and referee value. 500MB for each. Simple, symmetric, generous.',
+              '**Viral Cycle Time**: How long between user signup and their invitees signing up. Shorter = faster growth. Optimize for speed.',
+              '**Dark Patterns Warning**: Forced invites, address book scraping, fake notifications - these work short-term but destroy trust and get you banned from platforms.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'north-star-metric',
+        name: 'North Star Metric',
+        description: 'The one metric that captures the core value exchange',
+        keyInsights: [
+          { title: 'Captures value delivered', summary: 'NSM should measure value customers receive, not just company revenue. When customers win, you win.' },
+          { title: 'Aligns the whole company', summary: 'Everyone from engineering to marketing should understand how their work impacts the NSM.' },
+          { title: 'Leading, not lagging', summary: 'NSM should predict future success. Revenue is lagging. Engagement metrics are leading.' },
+        ],
+        deepDive: [
+          '**Examples by Company**: Airbnb: nights booked. Spotify: time spent listening. Facebook: daily active users. Slack: messages sent. Amplitude: weekly learning users.',
+          '**NSM Criteria**: Measures value to customer, not just to company. Measurable in real-time. Leading indicator of revenue. Achievable by all teams working together.',
+          '**Input Metrics**: Break down NSM into input metrics teams can directly influence. Nights booked = listings × searches × booking rate × repeat rate.',
+          '**Avoiding Vanity Metrics**: Total signups, page views, and social followers feel good but don\'t predict success. Focus on active usage metrics.',
+        ],
+      },
+      {
+        id: 'acquisition-channels',
+        name: 'Acquisition Channels',
+        description: 'Finding and scaling channels that bring quality users',
+        keyInsights: [
+          { title: 'Channels have lifecycle curves', summary: 'Every channel starts inefficient, becomes efficient, then saturates. Timing matters.' },
+          { title: 'Focus beats diversification', summary: 'Master one channel before expanding. Going wide too early means doing everything poorly.' },
+          { title: 'Channel-market fit exists', summary: 'Not every channel works for every product. B2B SaaS and consumer apps need different channels.' },
+        ],
+        deepDive: [
+          '**The 19 Traction Channels**: Viral marketing, PR, unconventional PR, SEM, social ads, offline ads, SEO, content marketing, email marketing, engineering as marketing, business development, sales, affiliate programs, existing platforms, trade shows, offline events, speaking engagements, community building, targeting blogs.',
+          '**Bullseye Framework**: Brainstorm all channels → Pick top 3 to test → Double down on winner. From "Traction" by Gabriel Weinberg.',
+          '**Channel Economics**: Track CAC (customer acquisition cost) and LTV (lifetime value) by channel. Healthy ratio is LTV:CAC > 3:1.',
+          '**Saturation Signals**: Rising CAC, declining conversion rates, slower scale. When you see these, next channel should already be in testing.',
+        ],
+      },
+    ],
   },
   {
     id: 'product-led-growth',
