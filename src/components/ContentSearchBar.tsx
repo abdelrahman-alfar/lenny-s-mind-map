@@ -122,8 +122,10 @@ function searchInContent(
 export function ContentSearchBar({ onResultClick }: ContentSearchBarProps) {
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
   
   const searchResults = useMemo(() => {
     if (query.trim().length < 2) return [];
@@ -131,12 +133,10 @@ export function ContentSearchBar({ onResultClick }: ContentSearchBarProps) {
     const allResults: SearchResult[] = [];
     
     topics.forEach(topic => {
-      // Search in main topic
       const topicResults = searchInContent(topic, query);
       allResults.push(...topicResults);
     });
     
-    // Limit results and remove duplicates based on matchContext
     const seen = new Set<string>();
     return allResults.filter(result => {
       const key = `${result.topicId}-${result.subTopicPath.map(s => s.id).join('-')}-${result.matchText}`;
@@ -145,6 +145,11 @@ export function ContentSearchBar({ onResultClick }: ContentSearchBarProps) {
       return true;
     }).slice(0, 10);
   }, [query]);
+  
+  // Reset selected index when results change
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [searchResults]);
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -158,10 +163,51 @@ export function ContentSearchBar({ onResultClick }: ContentSearchBarProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   
+  // Scroll selected item into view
+  useEffect(() => {
+    if (selectedIndex >= 0 && resultsRef.current) {
+      const selectedElement = resultsRef.current.children[selectedIndex] as HTMLElement;
+      if (selectedElement) {
+        selectedElement.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }, [selectedIndex]);
+  
   const handleResultClick = (result: SearchResult) => {
     onResultClick(result.topicId, result.subTopicPath);
     setQuery("");
     setIsFocused(false);
+    setSelectedIndex(-1);
+  };
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showResults || searchResults.length === 0) return;
+    
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev => 
+          prev < searchResults.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev => 
+          prev > 0 ? prev - 1 : searchResults.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < searchResults.length) {
+          handleResultClick(searchResults[selectedIndex]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setIsFocused(false);
+        setSelectedIndex(-1);
+        break;
+    }
   };
   
   const showResults = isFocused && query.trim().length >= 2;
@@ -181,8 +227,13 @@ export function ContentSearchBar({ onResultClick }: ContentSearchBarProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value.slice(0, 100))}
           onFocus={() => setIsFocused(true)}
+          onKeyDown={handleKeyDown}
           placeholder="Search all insights..."
           className="w-full md:w-80 pl-12 pr-10 py-3 bg-secondary/50 border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+          role="combobox"
+          aria-expanded={showResults}
+          aria-haspopup="listbox"
+          aria-activedescendant={selectedIndex >= 0 ? `search-result-${selectedIndex}` : undefined}
         />
         {query && (
           <button
@@ -211,15 +262,23 @@ export function ContentSearchBar({ onResultClick }: ContentSearchBarProps) {
                 No results found for "{query}"
               </div>
             ) : (
-              <div className="divide-y divide-border/30">
+              <div ref={resultsRef} className="divide-y divide-border/30" role="listbox">
                 {searchResults.map((result, index) => (
                   <motion.button
                     key={`${result.topicId}-${result.subTopicPath.map(s => s.id).join('-')}-${index}`}
+                    id={`search-result-${index}`}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.03 }}
                     onClick={() => handleResultClick(result)}
-                    className="w-full p-3 text-left hover:bg-secondary/50 transition-colors"
+                    onMouseEnter={() => setSelectedIndex(index)}
+                    className={`w-full p-3 text-left transition-colors ${
+                      selectedIndex === index 
+                        ? 'bg-secondary/70 ring-1 ring-primary/30' 
+                        : 'hover:bg-secondary/50'
+                    }`}
+                    role="option"
+                    aria-selected={selectedIndex === index}
                   >
                     <div className="flex items-start gap-3">
                       <div className="mt-0.5">
