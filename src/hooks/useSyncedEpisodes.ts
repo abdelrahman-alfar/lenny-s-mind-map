@@ -58,9 +58,9 @@ export function useLatestSync() {
         .eq('status', 'completed')
         .order('completed_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data as SyncLog | null;
     },
   });
