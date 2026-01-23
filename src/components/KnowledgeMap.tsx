@@ -1,13 +1,15 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Sparkles, Network, ChevronRight, Home, ZoomIn } from "lucide-react";
+import { Brain, Sparkles, Network, ChevronRight, Home, ZoomIn, Bookmark } from "lucide-react";
 import { topics, Topic, SubTopic, TopicCategory, getTotalEpisodes, connections, categoryLabels } from "@/data/knowledgeMap";
 import { TopicNode } from "./TopicNode";
 import { TopicDetail } from "./TopicDetail";
 import { CategoryLegend } from "./CategoryLegend";
 import { ContentSearchBar } from "./ContentSearchBar";
+import { SavedItemsPanel } from "./SavedItemsPanel";
 import { Button } from "./ui/button";
 import { FocusedView } from "./FocusedView";
+import { useBookmarkContext } from "@/contexts/BookmarkContext";
 
 interface NodePosition {
   id: string;
@@ -25,7 +27,9 @@ export function KnowledgeMap() {
   const [focusedTopic, setFocusedTopic] = useState<Topic | null>(null);
   const [navigationPath, setNavigationPath] = useState<Topic[]>([]);
   const [initialSubTopicPath, setInitialSubTopicPath] = useState<SubTopic[]>([]);
+  const [showSavedItems, setShowSavedItems] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { bookmarkCount } = useBookmarkContext();
 
   const filteredTopics = useMemo(() => {
     let filtered = topics;
@@ -131,6 +135,28 @@ export function KnowledgeMap() {
     }
   };
 
+  const handleSavedItemClick = (topicId: string, subTopicPath: { id: string; name: string }[]) => {
+    const topic = topics.find(t => t.id === topicId);
+    if (topic) {
+      // Convert to SubTopic format by finding actual sub-topics
+      const fullSubTopicPath: SubTopic[] = [];
+      let currentContent: Topic | SubTopic = topic;
+      
+      for (const pathItem of subTopicPath) {
+        const subTopic = currentContent.subTopics?.find(st => st.id === pathItem.id);
+        if (subTopic) {
+          fullSubTopicPath.push(subTopic);
+          currentContent = subTopic;
+        }
+      }
+      
+      setNavigationPath([topic]);
+      setFocusedTopic(topic);
+      setInitialSubTopicPath(fullSubTopicPath);
+      setSelectedTopic(null);
+    }
+  };
+
   // Focused view mode
   if (focusedTopic) {
     return (
@@ -177,6 +203,20 @@ export function KnowledgeMap() {
               
               <div className="flex items-center gap-3">
                 <ContentSearchBar onResultClick={handleSearchResultClick} />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSavedItems(true)}
+                  className="gap-2 relative"
+                >
+                  <Bookmark className="w-4 h-4" />
+                  <span className="hidden sm:inline">Saved</span>
+                  {bookmarkCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                      {bookmarkCount > 9 ? '9+' : bookmarkCount}
+                    </span>
+                  )}
+                </Button>
                 <Button
                   variant={showConnections ? "default" : "outline"}
                   size="sm"
@@ -399,6 +439,13 @@ export function KnowledgeMap() {
           </div>
         </footer>
       </div>
+
+      {/* Saved Items Panel */}
+      <SavedItemsPanel
+        isOpen={showSavedItems}
+        onClose={() => setShowSavedItems(false)}
+        onItemClick={handleSavedItemClick}
+      />
     </div>
   );
 }
