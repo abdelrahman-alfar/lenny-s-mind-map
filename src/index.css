@@ -42,13 +42,13 @@
 
     --radius: 0.75rem;
 
-    /* Category colors for the knowledge map - updated categories */
-    --strategy: 217 91% 60%;
-    --growth: 142 71% 45%;
-    --leadership: 280 65% 60%;
-    --execution: 38 92% 50%;
-    --skills: 173 80% 40%;
-    --career: 340 75% 55%;
+    /* Category colors for the knowledge map - vibrant unique colors */
+    --strategy: 217 91% 60%;      /* Electric Blue */
+    --growth: 142 76% 45%;        /* Emerald Green */
+    --leadership: 270 70% 60%;    /* Royal Purple */
+    --execution: 32 95% 55%;      /* Warm Orange */
+    --skills: 187 85% 45%;        /* Cyan/Teal */
+    --career: 340 82% 60%;        /* Hot Pink/Rose */
 
     /* Glow effects */
     --glow-primary: 0 0 30px hsl(217 91% 60% / 0.4);

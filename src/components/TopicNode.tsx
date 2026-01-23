@@ -43,11 +43,11 @@ const getCategoryColor = (category: string) => {
 const getGlowColor = (category: string) => {
   const glows: Record<string, string> = {
     'strategy': 'shadow-[0_0_30px_hsl(217,91%,60%,0.5)]',
-    'growth': 'shadow-[0_0_30px_hsl(142,71%,45%,0.5)]',
-    'leadership': 'shadow-[0_0_30px_hsl(280,65%,60%,0.5)]',
-    'execution': 'shadow-[0_0_30px_hsl(38,92%,50%,0.5)]',
-    'skills': 'shadow-[0_0_30px_hsl(173,80%,40%,0.5)]',
-    'career': 'shadow-[0_0_30px_hsl(340,75%,55%,0.5)]',
+    'growth': 'shadow-[0_0_30px_hsl(142,76%,45%,0.5)]',
+    'leadership': 'shadow-[0_0_30px_hsl(270,70%,60%,0.5)]',
+    'execution': 'shadow-[0_0_30px_hsl(32,95%,55%,0.5)]',
+    'skills': 'shadow-[0_0_30px_hsl(187,85%,45%,0.5)]',
+    'career': 'shadow-[0_0_30px_hsl(340,82%,60%,0.5)]',
   };
   return glows[category] || '';
 };
