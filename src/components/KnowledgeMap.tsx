@@ -7,9 +7,11 @@ import { TopicDetail } from "./TopicDetail";
 import { CategoryLegend } from "./CategoryLegend";
 import { ContentSearchBar } from "./ContentSearchBar";
 import { SavedItemsPanel } from "./SavedItemsPanel";
+import { SyncStatus } from "./SyncStatus";
 import { Button } from "./ui/button";
 import { FocusedView } from "./FocusedView";
 import { useBookmarkContext } from "@/contexts/BookmarkContext";
+import { useEpisodeCount } from "@/hooks/useSyncedEpisodes";
 
 interface NodePosition {
   id: string;
@@ -30,6 +32,7 @@ export function KnowledgeMap() {
   const [showSavedItems, setShowSavedItems] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { bookmarkCount } = useBookmarkContext();
+  const { data: dynamicEpisodeCount } = useEpisodeCount();
 
   const filteredTopics = useMemo(() => {
     let filtered = topics;
@@ -195,13 +198,14 @@ export function KnowledgeMap() {
                   <h1 className="font-display text-xl font-bold text-foreground">
                     PM Knowledge Map
                   </h1>
-                  <p className="text-sm text-muted-foreground">
-                    {getTotalEpisodes()} episodes from Lenny's Podcast
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    {dynamicEpisodeCount || getTotalEpisodes()} episodes from Lenny's Podcast
                   </p>
                 </div>
               </motion.div>
               
               <div className="flex items-center gap-3">
+                <SyncStatus />
                 <ContentSearchBar onResultClick={handleSearchResultClick} />
                 <Button
                   variant="outline"
