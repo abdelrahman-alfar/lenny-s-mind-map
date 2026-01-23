@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      sync_logs: {
+        Row: {
+          completed_at: string | null
+          episodes_added: number | null
+          episodes_found: number | null
+          episodes_updated: number | null
+          error_message: string | null
+          id: string
+          started_at: string
+          status: string
+          sync_type: string
+        }
+        Insert: {
+          completed_at?: string | null
+          episodes_added?: number | null
+          episodes_found?: number | null
+          episodes_updated?: number | null
+          error_message?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          sync_type?: string
+        }
+        Update: {
+          completed_at?: string | null
+          episodes_added?: number | null
+          episodes_found?: number | null
+          episodes_updated?: number | null
+          error_message?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          sync_type?: string
+        }
+        Relationships: []
+      }
+      synced_episodes: {
+        Row: {
+          created_at: string
+          episode_number: number | null
+          episode_title: string
+          github_filename: string
+          github_url: string | null
+          guest_name: string | null
+          id: string
+          match_scores: Json | null
+          matched_topic_ids: string[] | null
+          published_date: string | null
+          synced_at: string
+          transcript_preview: string | null
+        }
+        Insert: {
+          created_at?: string
+          episode_number?: number | null
+          episode_title: string
+          github_filename: string
+          github_url?: string | null
+          guest_name?: string | null
+          id?: string
+          match_scores?: Json | null
+          matched_topic_ids?: string[] | null
+          published_date?: string | null
+          synced_at?: string
+          transcript_preview?: string | null
+        }
+        Update: {
+          created_at?: string
+          episode_number?: number | null
+          episode_title?: string
+          github_filename?: string
+          github_url?: string | null
+          guest_name?: string | null
+          id?: string
+          match_scores?: Json | null
+          matched_topic_ids?: string[] | null
+          published_date?: string | null
+          synced_at?: string
+          transcript_preview?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
