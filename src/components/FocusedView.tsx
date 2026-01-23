@@ -1,9 +1,10 @@
 import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Home, ChevronRight, ZoomOut, ChevronDown, ChevronUp, Lightbulb, BookOpen, Layers, ArrowRight, Bookmark } from "lucide-react";
+import { Home, ChevronRight, ZoomOut, ChevronDown, ChevronUp, Lightbulb, BookOpen, Layers, ArrowRight, Bookmark, Download, Loader2 } from "lucide-react";
 import { Topic, SubTopic, topics, connections, categoryLabels } from "@/data/knowledgeMap";
 import { Button } from "./ui/button";
 import { useBookmarkContext } from "@/contexts/BookmarkContext";
+import { useExportPdf } from "@/hooks/useExportPdf";
 
 type ViewableContent = Topic | SubTopic;
 
@@ -214,6 +215,7 @@ function DeepDiveSection({
 export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown, initialSubTopicPath, onSubTopicPathConsumed }: FocusedViewProps) {
   const [showDeepDive, setShowDeepDive] = useState(false);
   const [subTopicPath, setSubTopicPath] = useState<SubTopic[]>([]);
+  const { exportToPdf, isExporting } = useExportPdf();
 
   // Initialize with search result path if provided
   useEffect(() => {
@@ -227,6 +229,15 @@ export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown
   const currentContent: ViewableContent = subTopicPath.length > 0 
     ? subTopicPath[subTopicPath.length - 1] 
     : topic;
+
+  const handleExportPdf = () => {
+    exportToPdf({
+      topic,
+      currentContent,
+      subTopicPath,
+      includeDeepDive: true,
+    });
+  };
 
   const currentSubTopics = currentContent.subTopics || [];
 
@@ -323,10 +334,26 @@ export function FocusedView({ topic, navigationPath, onNavigateBack, onDrillDown
                   </div>
                 ))}
               </nav>
-              <Button variant="outline" size="sm" onClick={() => handleBackToMap(-1)} className="gap-2">
-                <ZoomOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Back</span>
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleExportPdf}
+                  disabled={isExporting}
+                  className="gap-2"
+                >
+                  {isExporting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  <span className="hidden sm:inline">PDF</span>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleBackToMap(-1)} className="gap-2">
+                  <ZoomOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Back</span>
+                </Button>
+              </div>
             </div>
           </div>
         </header>
