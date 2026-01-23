@@ -72,9 +72,59 @@ Deno.serve(async (req) => {
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  
+
+  // Verify authentication
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized - missing auth header' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Create client with user's auth to verify identity
+  const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const { data: { user }, error: authError } = await userClient.auth.getUser();
+  if (authError || !user) {
+    return new Response(
+      JSON.stringify({ error: 'Invalid authentication' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Check if user has admin role using service client
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  
+  const { data: isAdmin, error: roleError } = await supabase.rpc('has_role', {
+    _user_id: user.id,
+    _role: 'admin'
+  });
+
+  if (roleError || !isAdmin) {
+    return new Response(
+      JSON.stringify({ error: 'Forbidden - admin access required' }),
+      { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Check for already running sync to prevent concurrent executions
+  const { data: runningSync } = await supabase
+    .from('sync_logs')
+    .select('id')
+    .eq('status', 'running')
+    .maybeSingle();
+
+  if (runningSync) {
+    return new Response(
+      JSON.stringify({ error: 'Sync already in progress' }),
+      { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
 
   // Create sync log entry
   const { data: syncLog, error: logError } = await supabase
