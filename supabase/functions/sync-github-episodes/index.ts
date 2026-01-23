@@ -156,9 +156,10 @@ Deno.serve(async (req) => {
     console.log('GitHub API response status:', response.status);
     
     if (!response.ok) {
+      // Log detailed error server-side only
       const errorText = await response.text();
       console.error('GitHub API error response:', errorText);
-      throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+      throw new Error('Failed to fetch repository data');
     }
 
     const treeData = await response.json();
@@ -281,22 +282,25 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
+    // Log detailed error server-side only
     console.error('Sync error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const detailedError = error instanceof Error ? error.message : 'Unknown error';
     
+    // Store detailed error in sync_logs for admin review (protected by RLS)
     if (syncLogId) {
       await supabase
         .from('sync_logs')
         .update({
           status: 'failed',
-          error_message: errorMessage,
+          error_message: detailedError,
           completed_at: new Date().toISOString(),
         })
         .eq('id', syncLogId);
     }
 
+    // Return generic error message to client
     return new Response(
-      JSON.stringify({ success: false, error: errorMessage }),
+      JSON.stringify({ success: false, error: 'Sync operation failed. Check sync logs for details.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
