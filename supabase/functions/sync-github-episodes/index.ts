@@ -45,10 +45,9 @@ function matchTopics(text: string): { topicIds: string[]; scores: Record<string,
     }
   }
   
-  // Return topics with score > 0, sorted by score
   const topicIds = Object.entries(scores)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 5) // Top 5 matching topics
+    .slice(0, 5)
     .map(([id]) => id);
   
   return { topicIds, scores };
@@ -57,21 +56,14 @@ function matchTopics(text: string): { topicIds: string[]; scores: Record<string,
 function parseEpisodeInfo(filename: string, content: string): {
   title: string;
   episodeNumber: number | null;
-  guestName: string | null;
 } {
-  // Try to extract episode number from filename (e.g., "001_guest_name.md")
   const episodeMatch = filename.match(/^(\d+)/);
   const episodeNumber = episodeMatch ? parseInt(episodeMatch[1], 10) : null;
   
-  // Try to extract title from first heading in content
   const titleMatch = content.match(/^#\s*(.+)$/m);
   const title = titleMatch ? titleMatch[1].trim() : filename.replace(/\.md$/, '').replace(/_/g, ' ');
   
-  // Try to extract guest name from filename or content
-  const guestMatch = filename.match(/^\d+[_-](.+?)(?:\.md)?$/);
-  const guestName = guestMatch ? guestMatch[1].replace(/_/g, ' ').replace(/-/g, ' ') : null;
-  
-  return { title, episodeNumber, guestName };
+  return { title, episodeNumber };
 }
 
 Deno.serve(async (req) => {
@@ -100,23 +92,36 @@ Deno.serve(async (req) => {
   try {
     console.log('Starting GitHub sync...');
     
-    // Fetch episodes list from GitHub API
-    const githubApiUrl = 'https://api.github.com/repos/ChatPRD/lennys-podcast-transcripts/contents/episodes';
-    const response = await fetch(githubApiUrl, {
+    // Use GitHub Tree API to get all files in one call (much faster than Contents API)
+    const treeApiUrl = 'https://api.github.com/repos/ChatPRD/lennys-podcast-transcripts/git/trees/main?recursive=1';
+    console.log('Fetching tree from:', treeApiUrl);
+    
+    const response = await fetch(treeApiUrl, {
       headers: {
         'Accept': 'application/vnd.github.v3+json',
         'User-Agent': 'Lovable-Knowledge-Map',
       },
     });
 
+    console.log('GitHub API response status:', response.status);
+    
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('GitHub API error response:', errorText);
       throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
     }
 
-    const files = await response.json();
-    const mdFiles = files.filter((f: any) => f.name.endsWith('.md'));
+    const treeData = await response.json();
+    console.log('Tree truncated:', treeData.truncated);
     
-    console.log(`Found ${mdFiles.length} episode files`);
+    // Filter for markdown files in the episodes folder
+    const episodeFiles = treeData.tree.filter((item: any) => 
+      item.type === 'blob' && 
+      item.path.startsWith('episodes/') && 
+      item.path.endsWith('.md')
+    );
+    
+    console.log(`Found ${episodeFiles.length} episode transcript files`);
 
     // Get existing episodes
     const { data: existingEpisodes } = await supabase
@@ -127,57 +132,74 @@ Deno.serve(async (req) => {
     
     let added = 0;
     let updated = 0;
+    
+    // Process files - limit to 50 per sync to avoid timeout
+    const filesToProcess = episodeFiles.slice(0, 50);
+    console.log(`Processing ${filesToProcess.length} files this batch`);
 
-    // Process each file (batch to avoid rate limits)
-    for (const file of mdFiles) {
+    for (const file of filesToProcess) {
       try {
-        // Fetch file content
-        const contentResponse = await fetch(file.download_url);
+        // Extract guest name from path (e.g., "episodes/adam-fishman/transcript.md")
+        const pathParts = file.path.split('/');
+        const guestDir = pathParts[1] || '';
+        const guestName = guestDir.replace(/-/g, ' ');
+        
+        // Fetch file content via raw URL
+        const rawUrl = `https://raw.githubusercontent.com/ChatPRD/lennys-podcast-transcripts/main/${file.path}`;
+        const contentResponse = await fetch(rawUrl);
+        
+        if (!contentResponse.ok) {
+          console.error(`Failed to fetch ${file.path}: ${contentResponse.status}`);
+          continue;
+        }
+        
         const content = await contentResponse.text();
         
         // Parse episode info
-        const { title, episodeNumber, guestName } = parseEpisodeInfo(file.name, content);
+        const { title, episodeNumber } = parseEpisodeInfo(file.path, content);
         
-        // Get transcript preview (first 500 chars)
+        // Get transcript preview (first 500 chars, cleaned)
         const preview = content.slice(0, 500).replace(/[#*_`]/g, '').trim();
         
         // Match topics based on content
         const { topicIds, scores } = matchTopics(content);
         
+        // Use guest directory as unique identifier
+        const filename = guestDir || file.path;
+        
         const episodeData = {
-          github_filename: file.name,
-          episode_title: title,
+          github_filename: filename,
+          episode_title: title || guestName,
           episode_number: episodeNumber,
           guest_name: guestName,
           transcript_preview: preview,
           matched_topic_ids: topicIds,
           match_scores: scores,
-          github_url: file.html_url,
+          github_url: `https://github.com/ChatPRD/lennys-podcast-transcripts/blob/main/${file.path}`,
           synced_at: new Date().toISOString(),
         };
 
-        if (existingFilenames.has(file.name)) {
-          // Update existing episode
+        if (existingFilenames.has(filename)) {
           const { error } = await supabase
             .from('synced_episodes')
             .update(episodeData)
-            .eq('github_filename', file.name);
+            .eq('github_filename', filename);
           
           if (!error) updated++;
         } else {
-          // Insert new episode
           const { error } = await supabase
             .from('synced_episodes')
             .insert(episodeData);
           
           if (!error) added++;
+          else console.error(`Insert error for ${filename}:`, error);
         }
         
         // Small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 50));
         
       } catch (fileError) {
-        console.error(`Error processing ${file.name}:`, fileError);
+        console.error(`Error processing ${file.path}:`, fileError);
       }
     }
 
@@ -188,7 +210,7 @@ Deno.serve(async (req) => {
       await supabase
         .from('sync_logs')
         .update({
-          episodes_found: mdFiles.length,
+          episodes_found: episodeFiles.length,
           episodes_added: added,
           episodes_updated: updated,
           status: 'completed',
@@ -200,9 +222,10 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        episodesFound: mdFiles.length,
+        episodesFound: episodeFiles.length,
         added,
         updated,
+        remaining: Math.max(0, episodeFiles.length - 50),
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -211,7 +234,6 @@ Deno.serve(async (req) => {
     console.error('Sync error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
-    // Update sync log with error
     if (syncLogId) {
       await supabase
         .from('sync_logs')
