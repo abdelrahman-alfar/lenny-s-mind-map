@@ -10,7 +10,7 @@ import {
   Info,
   Timer as TimerIcon,
 } from "lucide-react";
-import { getWeek, PROGRAM, ProgramBlock, ProgramSet } from "@/data/kettlebell/program";
+import { getWeek, PHASES, PROGRAM, ProgramBlock, ProgramSet } from "@/data/kettlebell/program";
 import { getExercise } from "@/data/kettlebell/exercises";
 import { useWorkoutProgress } from "@/hooks/useWorkoutProgress";
 import { RestTimer } from "@/components/kettlebell/RestTimer";
@@ -92,9 +92,13 @@ export default function SessionRunner() {
           {done && <CheckCircle2 className="h-6 w-6 text-[hsl(var(--success))]" />}
         </header>
 
-        <p className="mt-3 rounded-xl border border-border bg-card/60 p-3 text-sm text-muted-foreground">
-          {session.focus}
-        </p>
+        <div className="mt-3 rounded-xl border border-border bg-card/60 p-3">
+          <p className="text-sm text-muted-foreground">{session.focus}</p>
+          <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-primary">
+            <TimerIcon className="h-3.5 w-3.5" />
+            {PHASES.find((p) => p.id === week.phaseId)?.intensity}
+          </p>
+        </div>
 
         {/* Set completion bar */}
         <div className="mt-4 flex items-center gap-3">

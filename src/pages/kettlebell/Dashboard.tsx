@@ -10,7 +10,7 @@ import {
   Trophy,
   Settings,
 } from "lucide-react";
-import { PHASES, PROGRAM, Week } from "@/data/kettlebell/program";
+import { LEVEL, PHASES, PROGRAM, Week } from "@/data/kettlebell/program";
 import { useWorkoutProgress } from "@/hooks/useWorkoutProgress";
 import { cn } from "@/lib/utils";
 import {
@@ -73,7 +73,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h1 className="font-display text-xl font-bold leading-none">Kettlebell 12</h1>
-              <p className="text-xs text-muted-foreground">3-month program</p>
+              <p className="text-xs text-muted-foreground">3-month program · {LEVEL}</p>
             </div>
           </div>
           <SettingsDialog unit={unit} setUnit={setUnit} resetAll={resetAll} />
@@ -117,6 +117,10 @@ export default function Dashboard() {
                           </span>
                         </div>
                         <p className="mt-0.5 text-xs text-muted-foreground">{phase.summary}</p>
+                        <p className="mt-1 inline-flex items-center gap-1.5 text-[11px] font-medium text-foreground/80">
+                          <span className={cn("h-1 w-1 rounded-full", phaseDot[phase.id])} />
+                          {phase.intensity}
+                        </p>
                       </div>
                       <span className="mr-1 text-xs font-medium tabular-nums text-muted-foreground">
                         {done}/{total}

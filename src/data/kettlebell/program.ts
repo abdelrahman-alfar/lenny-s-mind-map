@@ -49,7 +49,12 @@ export interface Phase {
   weeks: number[]; // global week numbers
   color: string; // tailwind-ish accent token used in UI
   summary: string;
+  /** Target working intensity for the phase, written for an intermediate lifter. */
+  intensity: string;
 }
+
+/** Program is tuned for an intermediate lifter who knows the movements. */
+export const LEVEL = "Intermediate";
 
 // --- Progression helpers -----------------------------------------------------
 // Given a phase week (1-4), return sets/reps that ramp then slightly back off
@@ -57,10 +62,12 @@ export interface Phase {
 
 const ramp = (base: number[]) => (phaseWeek: number) => base[phaseWeek - 1];
 
-// Rounds per phase-week for the main circuits.
-const rounds = ramp([3, 4, 5, 3]);
+// Rounds per phase-week for the main circuits. Tuned up for an intermediate
+// lifter — the first phase is a re-groove at real working weights, not a
+// beginner's introduction.
+const rounds = ramp([4, 4, 5, 4]);
 // Rep targets that climb across the phase.
-const swingReps = ramp([15, 20, 25, 15]);
+const swingReps = ramp([20, 25, 30, 20]);
 
 // --- Phase 1: Foundation -----------------------------------------------------
 
@@ -194,7 +201,7 @@ function strengthSessions(pw: number): Session[] {
           title: "Strength",
           format: `${r} rounds`,
           sets: [
-            { exercise: "frontSquat", prescription: `${r} × 8`, rest: 90, tracksWeight: true },
+            { exercise: "frontSquat", prescription: `${r} × 8`, note: "Double bells if you have a matched pair", rest: 90, tracksWeight: true },
             { exercise: "bentRow", prescription: `${r} × 8 / side`, rest: 75, tracksWeight: true },
             { exercise: "pushPress", prescription: `${r} × 6 / side`, rest: 75, tracksWeight: true },
           ],
@@ -218,7 +225,7 @@ function strengthSessions(pw: number): Session[] {
           title: "Strength",
           format: `${r} rounds`,
           sets: [
-            { exercise: "cleanPress", prescription: `${r} × 5 / side`, rest: 90, tracksWeight: true },
+            { exercise: "cleanPress", prescription: `${r} × 5 / side`, note: "Go double-bell for a real strength challenge", rest: 90, tracksWeight: true },
             { exercise: "singleLegDeadlift", prescription: `${r} × 8 / side`, rest: 75, tracksWeight: true },
             { exercise: "renegadeRow", prescription: `${r} × 6 / side`, rest: 75, tracksWeight: true },
           ],
@@ -380,7 +387,7 @@ function peakSessions(pw: number, weekNumber: number): Session[] {
           title: "Strength",
           format: `${r} rounds`,
           sets: [
-            { exercise: "frontSquat", prescription: `${r} × 6`, rest: 90, tracksWeight: true },
+            { exercise: "frontSquat", prescription: `${r} × 6`, note: "Double bells, heavy", rest: 90, tracksWeight: true },
             { exercise: "renegadeRow", prescription: `${r} × 8 / side`, rest: 75, tracksWeight: true },
           ],
         },
@@ -457,14 +464,16 @@ export const PHASES: Phase[] = [
     name: "Foundation",
     weeks: [1, 2, 3, 4],
     color: "emerald",
-    summary: "Master the fundamentals and build work capacity with lighter bells.",
+    summary: "Re-groove the patterns at real working weights and build capacity.",
+    intensity: "RPE 6–7 · leave 3–4 reps in the tank",
   },
   {
     id: "strength",
     name: "Strength & Power",
     weeks: [5, 6, 7, 8],
     color: "amber",
-    summary: "Heavier loads, ballistic power, and kettlebell complexes.",
+    summary: "Heavier loads, ballistic power, and double-bell complexes.",
+    intensity: "RPE 7–8 · heavy but crisp, 2–3 reps in reserve",
   },
   {
     id: "peak",
@@ -472,6 +481,7 @@ export const PHASES: Phase[] = [
     weeks: [9, 10, 11, 12],
     color: "rose",
     summary: "Density work, flows, and a final test week to measure your gains.",
+    intensity: "RPE 8–9 · push the pace, empty the tank on test day",
   },
 ];
 

@@ -1,0 +1,60 @@
+name: Deploy to GitHub Pages
+
+# Builds the app and publishes it to GitHub Pages so it can be installed
+# on a phone as a PWA. Enable once in the repo: Settings → Pages →
+# Source: "GitHub Actions".
+
+on:
+  push:
+    branches:
+      - main
+      # Lets the app deploy from the feature branch before it's merged.
+      # Safe to remove this line once the work is on main.
+      - claude/kettlebell-workout-app-9v9iwd
+  workflow_dispatch:
+
+# Allow the workflow to publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; newer pushes cancel older in-flight runs.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        # Served from https://<user>.github.io/lenny-s-mind-map/
+        env:
+          VITE_BASE: /lenny-s-mind-map/
+        run: bun run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
