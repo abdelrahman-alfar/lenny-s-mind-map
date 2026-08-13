@@ -1,44 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* PM Knowledge Map Design System
-   Inspired by constellation/galaxy aesthetics with deep space navy background
-   Clean, professional, and visually striking
+/* Kettlebell Program Design System
+   Athletic dark theme — high-energy orange on near-black, tuned for
+   glanceability under gym lighting and one-handed use on a phone.
 */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    /* Deep space dark theme - primary mode */
-    --background: 222 47% 6%;
-    --foreground: 210 40% 96%;
+    /* Athletic dark theme - primary mode */
+    --background: 20 14% 6%;
+    --foreground: 30 20% 96%;
 
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 96%;
+    --card: 20 14% 9%;
+    --card-foreground: 30 20% 96%;
 
-    --popover: 222 47% 10%;
-    --popover-foreground: 210 40% 96%;
+    --popover: 20 14% 11%;
+    --popover-foreground: 30 20% 96%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 6%;
+    --primary: 22 92% 54%;
+    --primary-foreground: 20 14% 6%;
 
-    --secondary: 222 30% 14%;
-    --secondary-foreground: 210 40% 96%;
+    --secondary: 20 12% 15%;
+    --secondary-foreground: 30 20% 96%;
 
-    --muted: 222 30% 12%;
-    --muted-foreground: 215 20% 55%;
+    --muted: 20 10% 13%;
+    --muted-foreground: 30 8% 60%;
 
-    --accent: 38 92% 50%;
-    --accent-foreground: 222 47% 6%;
+    --accent: 45 96% 55%;
+    --accent-foreground: 20 14% 6%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 30 20% 98%;
 
-    --border: 222 30% 18%;
-    --input: 222 30% 18%;
-    --ring: 217 91% 60%;
+    --border: 20 12% 18%;
+    --input: 20 12% 18%;
+    --ring: 22 92% 54%;
+
+    --success: 142 70% 45%;
 
     --radius: 0.75rem;
 
@@ -53,24 +55,24 @@
     --people: 200 75% 50%;        /* Sky Blue */
 
     /* Glow effects */
-    --glow-primary: 0 0 30px hsl(217 91% 60% / 0.4);
-    --glow-accent: 0 0 30px hsl(38 92% 50% / 0.4);
-    --glow-soft: 0 0 20px hsl(217 91% 60% / 0.2);
+    --glow-primary: 0 0 30px hsl(22 92% 54% / 0.4);
+    --glow-accent: 0 0 30px hsl(45 96% 55% / 0.4);
+    --glow-soft: 0 0 20px hsl(22 92% 54% / 0.2);
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 6%) 0%, hsl(222 47% 12%) 50%, hsl(217 91% 15%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(222 47% 10%) 0%, hsl(222 47% 8%) 100%);
-    --gradient-glow: radial-gradient(ellipse at center, hsl(217 91% 60% / 0.15) 0%, transparent 70%);
+    --gradient-hero: linear-gradient(135deg, hsl(20 14% 6%) 0%, hsl(20 20% 11%) 50%, hsl(22 60% 14%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(20 14% 11%) 0%, hsl(20 14% 9%) 100%);
+    --gradient-glow: radial-gradient(ellipse at center, hsl(22 92% 54% / 0.15) 0%, transparent 70%);
 
     /* Sidebar */
-    --sidebar-background: 222 47% 8%;
-    --sidebar-foreground: 210 40% 90%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 222 30% 14%;
-    --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 222 30% 18%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-background: 20 14% 9%;
+    --sidebar-foreground: 30 20% 90%;
+    --sidebar-primary: 22 92% 54%;
+    --sidebar-primary-foreground: 20 14% 6%;
+    --sidebar-accent: 20 12% 15%;
+    --sidebar-accent-foreground: 30 20% 96%;
+    --sidebar-border: 20 12% 18%;
+    --sidebar-ring: 22 92% 54%;
   }
 
   .dark {

@@ -7,6 +7,8 @@ import { BookmarkProvider } from "@/contexts/BookmarkContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import Dashboard from "./pages/kettlebell/Dashboard";
+import SessionRunner from "./pages/kettlebell/SessionRunner";
 
 const queryClient = new QueryClient();
 
@@ -18,7 +20,11 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            {/* Kettlebell program is the home experience */}
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/session/:weekId/:sessionId" element={<SessionRunner />} />
+            {/* Original Lenny's Mind Map, kept reachable */}
+            <Route path="/mindmap" element={<Index />} />
             <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
