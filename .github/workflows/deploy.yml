@@ -37,6 +37,13 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # Attempts to enable Pages automatically (Source: GitHub Actions).
+      # If it can't, enable it once manually: Settings → Pages → Source.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - name: Build
         # Served from https://<user>.github.io/lenny-s-mind-map/
         env:
